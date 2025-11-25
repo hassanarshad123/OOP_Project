@@ -23,10 +23,8 @@ void Game::run() {
     
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
-        
         // Cap dt to prevent huge jumps
-        if (dt > 0.1f) dt = 0.1f;
-        
+        //if (dt > 0.1f) dt = 0.1f;
         processEvents();
         update(dt);
         render();
@@ -304,7 +302,7 @@ void Game::createBackground() {
     for (int i = 0; i < 100; i++) {
         sf::CircleShape star(sizeDist(gen));
         star.setPosition(xDist(gen), yDist(gen));
-        star.setFillColor(sf::Color(100, 100, 150, 150));
+        star.setFillColor(sf::Color(150, 150, 150, 150));
         backgroundStars.push_back(star);
     }
 }

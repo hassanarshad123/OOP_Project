@@ -7,11 +7,11 @@
 // Window settings
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
-const std::string WINDOW_TITLE = "Neon Dodge - Color Rush";
+const std::string WINDOW_TITLE = "Color Swap Runner(Upgraded)";
 const int FPS = 60;
 
 // Player settings
-const float PLAYER_SIZE = 40.0f;
+const float PLAYER_SIZE = 50.0f;
 const float PLAYER_SPEED = 350.0f;
 const float DASH_SPEED = 800.0f;
 const float DASH_DURATION = 0.2f;

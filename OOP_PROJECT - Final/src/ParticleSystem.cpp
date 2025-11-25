@@ -1,8 +1,7 @@
 #include "ParticleSystem.h"
 
 ParticleSystem::ParticleSystem() {
-    std::random_device rd;
-    rng.seed(rd());
+    rng.seed(100000);
 }
 
 void ParticleSystem::emit(sf::Vector2f position, sf::Color color, int count) {

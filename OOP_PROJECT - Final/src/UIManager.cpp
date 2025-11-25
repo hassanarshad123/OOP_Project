@@ -130,7 +130,7 @@ void UIManager::drawMenu(sf::RenderWindow& window) {
     title.setFont(font);
     title.setCharacterSize(96);
     title.setFillColor(COLOR_BLUE);
-    title.setString("NEON DODGE");
+    title.setString("COLOR SAWP RUNNER!(2.0)");
     title.setOutlineThickness(5);
     title.setOutlineColor(sf::Color::White);
     sf::FloatRect bounds = title.getLocalBounds();
