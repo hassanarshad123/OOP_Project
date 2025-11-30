@@ -5,16 +5,36 @@
 Game::Game() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
     window.setFramerateLimit(FPS);
     state = GameState::MENU;
-    
+
     score = 0;
     combo = 0;
     obstacleSpawnTimer = 0;
     powerUpSpawnTimer = 0;
+    colorWallSpawnTimer = 0;  // Initialize color wall timer
     currentObstacleSpeed = OBSTACLE_SPEED;
     currentSpawnTime = OBSTACLE_SPAWN_TIME;
     shakeIntensity = 0;
     shakeTimer = 0;
-    
+
+    // Load dash sound effect
+    if (dashBuffer.loadFromFile("assets/sounds/Dash.wav")) {
+        dashSound.setBuffer(dashBuffer);
+        dashSound.setVolume(70);  // 0-100, adjust as needed
+    }
+
+    // Load color wall pass sound effect
+    if (wallPassBuffer.loadFromFile("assets/sounds/Bababooey.wav")) {
+        wallPassSound.setBuffer(wallPassBuffer);
+        wallPassSound.setVolume(80);  // 0-100, adjust as needed
+    }
+
+    // Load and play background music
+    if (backgroundMusic.openFromFile("assets/sounds/bg_sound.wav")) {
+        backgroundMusic.setLoop(true);      // Loop forever
+        backgroundMusic.setVolume(30);      // Quieter than sound effects (0-100)
+        backgroundMusic.play();             // Start playing immediately
+    }
+
     createBackground();
 }
 
@@ -23,8 +43,6 @@ void Game::run() {
     
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
-        // Cap dt to prevent huge jumps
-        //if (dt > 0.1f) dt = 0.1f;
         processEvents();
         update(dt);
         render();
@@ -56,7 +74,14 @@ void Game::processEvents() {
                 if (player.canDash()) {
                     player.dash();
                     particles.emit(player.getPosition(), COLOR_BLUE, 20);
+                    dashSound.play();  // Play dash sound effect
                 }
+            }
+
+            // NEW: Change player color when C key is pressed
+            if (event.key.code == sf::Keyboard::C && state == GameState::PLAYING) {
+                player.changeColor();
+                particles.emit(player.getPosition(), player.getColor(), 15);
             }
         }
     }
@@ -86,9 +111,16 @@ void Game::update(float dt) {
         spawnPowerUp();
         powerUpSpawnTimer = 0;
     }
-    
+
     for (auto& powerUp : powerUps) {
         powerUp->update(dt);
+    }
+
+    // Update color walls - spawn them periodically
+    colorWallSpawnTimer += dt;
+    if (colorWallSpawnTimer >= COLOR_WALL_SPAWN_TIME) {
+        spawnColorWall();
+        colorWallSpawnTimer = 0;
     }
     
     // Update particles
@@ -185,9 +217,10 @@ void Game::resetGame() {
     combo = 0;
     obstacleSpawnTimer = 0;
     powerUpSpawnTimer = 0;
+    colorWallSpawnTimer = 0;  // Reset color wall timer
     currentObstacleSpeed = OBSTACLE_SPEED;
     currentSpawnTime = OBSTACLE_SPAWN_TIME;
-    
+
     obstacles.clear();
     powerUps.clear();
     particles.clear();
@@ -217,34 +250,66 @@ void Game::spawnPowerUp() {
     static std::mt19937 gen(rd());
     std::uniform_real_distribution<float> yDist(50, WINDOW_HEIGHT - 50);
     std::uniform_int_distribution<int> typeDist(0, 2);
-    
+
     float y = yDist(gen);
     sf::Vector2f pos(WINDOW_WIDTH + 30, y);
     PowerUpType type = static_cast<PowerUpType>(typeDist(gen));
-    
+
     powerUps.push_back(std::make_unique<PowerUp>(pos, type, currentObstacleSpeed * 0.8f));
+}
+
+void Game::spawnColorWall() {
+    // Spawn a color wall obstacle in the center of the screen
+    // Player must match their color to pass through it
+    // Spawn further off-screen because color wall is wider (OBSTACLE_WIDTH * 3)
+    sf::Vector2f pos(WINDOW_WIDTH + OBSTACLE_WIDTH * 2, WINDOW_HEIGHT / 2.0f);
+    sf::Color wallColor = getRandomColor();
+
+    // Use ColorWallObstacle which inherits from Obstacle (POLYMORPHISM)
+    obstacles.push_back(std::make_unique<ColorWallObstacle>(pos, wallColor, currentObstacleSpeed * 0.7f));
 }
 
 void Game::checkCollisions() {
     sf::FloatRect playerBounds = player.getBounds();
-    
+
     // Check obstacle collisions
     for (const auto& obstacle : obstacles) {
         if (obstacle->active() && obstacle->getBounds().intersects(playerBounds)) {
-            gameOver();
-            return;
+            // NEW: Check if this is a color wall obstacle
+            if (obstacle->isColorWall()) {
+                // It's a color wall - check if player color matches
+                if (player.getColor() != obstacle->getColor()) {
+                    // Colors don't match - GAME OVER!
+                    gameOver();
+                    return;
+                }
+                // Colors match - player can pass through! (no collision)
+                // Continue to next obstacle
+            } else {
+                // Regular obstacle - always causes game over
+                gameOver();
+                return;
+            }
         }
-        
-        // Score for passing obstacles (fixed - only score once per obstacle)
-        if (obstacle->active() && 
-            obstacle->getPosition().x + OBSTACLE_WIDTH/2 < player.getPosition().x && 
+
+        // Score for passing obstacles
+        if (obstacle->active() &&
+            obstacle->getPosition().x + OBSTACLE_WIDTH/2 < player.getPosition().x &&
             obstacle->getPosition().x + OBSTACLE_WIDTH/2 > player.getPosition().x - 10) {
-            score += SCORE_PER_DODGE;
+
+            // Give bonus points for passing color walls
+            if (obstacle->isColorWall()) {
+                score += SCORE_COLOR_WALL_PASS;
+                particles.emit(obstacle->getPosition(), obstacle->getColor(), 30);
+                wallPassSound.play();  // Play "Bababooey" sound!
+            } else {
+                score += SCORE_PER_DODGE;
+                particles.emit(obstacle->getPosition(), obstacle->getColor(), 15);
+            }
             combo++;
-            particles.emit(obstacle->getPosition(), obstacle->getColor(), 15);
         }
     }
-    
+
     // Check power-up collisions
     for (auto& powerUp : powerUps) {
         if (powerUp->active() && powerUp->getBounds().intersects(playerBounds)) {

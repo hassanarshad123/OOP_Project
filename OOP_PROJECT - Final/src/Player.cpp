@@ -5,12 +5,22 @@ Player::Player() {
     position = sf::Vector2f(WINDOW_WIDTH / 4.0f, WINDOW_HEIGHT / 2.0f);
     shape.setSize(sf::Vector2f(PLAYER_SIZE, PLAYER_SIZE));
     shape.setOrigin(PLAYER_SIZE / 2, PLAYER_SIZE / 2);
-    
-    currentColor = COLOR_BLUE;
+
+    // Initialize available colors for color swapping
+    availableColors.push_back(COLOR_RED);
+    availableColors.push_back(COLOR_BLUE);
+    availableColors.push_back(COLOR_YELLOW);
+    availableColors.push_back(COLOR_GREEN);
+    availableColors.push_back(COLOR_PURPLE);
+    availableColors.push_back(COLOR_ORANGE);
+
+    // Start with first color (RED)
+    currentColorIndex = 0;
+    currentColor = availableColors[currentColorIndex];
     shape.setFillColor(currentColor);
     shape.setOutlineThickness(3.0f);
     shape.setOutlineColor(sf::Color::White);
-    
+
     isDashing = false;
     dashTimer = 0;
     dashCooldownTimer = 0;
@@ -113,10 +123,20 @@ void Player::draw(sf::RenderWindow& window) {
     window.draw(shape);
 }
 
+void Player::changeColor() {
+    // Cycle to next color
+    currentColorIndex = (currentColorIndex + 1) % availableColors.size();
+    currentColor = availableColors[currentColorIndex];
+    shape.setFillColor(currentColor);
+}
+
 void Player::reset() {
     position = sf::Vector2f(WINDOW_WIDTH / 4.0f, WINDOW_HEIGHT / 2.0f);
     velocity = sf::Vector2f(0, 0);
     isDashing = false;
     dashTimer = 0;
     dashCooldownTimer = 0;
+    currentColorIndex = 0;
+    currentColor = availableColors[currentColorIndex];
+    shape.setFillColor(currentColor);
 }

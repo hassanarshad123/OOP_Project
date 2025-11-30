@@ -1,7 +1,6 @@
 #include "UIManager.h"
 
 UIManager::UIManager() : fontLoaded(false) {
-    // Try to load font
     if (font.loadFromFile("assets/fonts/ARIALN.TTF")) {
         fontLoaded = true;
     } else if (font.loadFromFile("ARIALN.TTF")) {
@@ -130,7 +129,7 @@ void UIManager::drawMenu(sf::RenderWindow& window) {
     title.setFont(font);
     title.setCharacterSize(96);
     title.setFillColor(COLOR_BLUE);
-    title.setString("COLOR SAWP RUNNER!(2.0)");
+    title.setString("COLOR SWAP RUNNER! (2.0)");
     title.setOutlineThickness(5);
     title.setOutlineColor(sf::Color::White);
     sf::FloatRect bounds = title.getLocalBounds();
@@ -139,7 +138,7 @@ void UIManager::drawMenu(sf::RenderWindow& window) {
     window.draw(title);
     
     // Instructions
-    instructionText.setString("WASD or Arrow Keys to Move\nSPACE to Dash\nDodge the obstacles!\n\nPress ENTER to Start");
+    instructionText.setString("WASD or Arrow Keys to Move\nSPACE to Dash\nC to Change Color\nMatch your color to pass through color walls!\n\nPress ENTER to Start");
     bounds = instructionText.getLocalBounds();
     instructionText.setOrigin(bounds.width / 2, bounds.height / 2);
     instructionText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 50);

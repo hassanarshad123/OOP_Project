@@ -20,15 +20,22 @@ private:
     
     // Trail effect
     float trailTimer;
-    
+
+    // Color changing
+    int currentColorIndex;
+    std::vector<sf::Color> availableColors;
+
 public:
     Player();
-    
+
     // Movement
     void update(float dt);
     void handleInput();
     void dash();
-    
+
+    // Color changing
+    void changeColor();
+
     // Getters
     sf::Vector2f getPosition() const { return position; }
     sf::FloatRect getBounds() const { return shape.getGlobalBounds(); }

@@ -24,6 +24,10 @@ const float OBSTACLE_WIDTH = 40.0f;
 const float OBSTACLE_HEIGHT = 40.0f;
 const float SPEED_INCREASE_RATE = 0.95f;
 
+// Color Wall settings (special obstacles that require color matching)
+const float COLOR_WALL_SPAWN_TIME = 8.0f;  // Spawn a color wall every 8 seconds
+const int SCORE_COLOR_WALL_PASS = 50;      // Bonus points for passing color wall
+
 // Colors - Neon theme
 const sf::Color COLOR_RED = sf::Color(255, 0, 100);
 const sf::Color COLOR_BLUE = sf::Color(0, 200, 255);

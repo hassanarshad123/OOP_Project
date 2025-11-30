@@ -2,11 +2,13 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include <memory>
 #include "Config.h"
 #include "Player.h"
 #include "Obstacle.h"
+#include "ColorWallObstacle.h"  // Include the new color wall class
 #include "PowerUp.h"
 #include "ParticleSystem.h"
 #include "UIManager.h"
@@ -36,6 +38,7 @@ private:
     float currentObstacleSpeed;
     float currentSpawnTime;
     float powerUpSpawnTimer;
+    float colorWallSpawnTimer;  // Timer for spawning color walls
     
     // Screen shake
     float shakeIntensity;
@@ -44,7 +47,17 @@ private:
     
     // Background
     std::vector<sf::CircleShape> backgroundStars;
-    
+
+    // Sound effects
+    sf::SoundBuffer dashBuffer;
+    sf::Sound dashSound;
+
+    sf::SoundBuffer wallPassBuffer;
+    sf::Sound wallPassSound;
+
+    // Background music
+    sf::Music backgroundMusic;
+
 public:
     Game();
     
@@ -65,6 +78,7 @@ private:
     // Game logic
     void spawnObstacle();
     void spawnPowerUp();
+    void spawnColorWall();  // Spawn special color wall obstacles
     void checkCollisions();
     void updateDifficulty();
     void screenShake(float intensity);
