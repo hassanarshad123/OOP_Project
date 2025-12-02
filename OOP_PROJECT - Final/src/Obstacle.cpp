@@ -12,7 +12,8 @@ Obstacle::Obstacle(sf::Vector2f startPos, sf::Color col, float speed) {
     shape.setFillColor(color);
     shape.setOutlineThickness(2.0f);
     shape.setOutlineColor(sf::Color::White);
-    
+    shape.setPosition(position);
+
     velocity = sf::Vector2f(-speed, 0);
 }
 

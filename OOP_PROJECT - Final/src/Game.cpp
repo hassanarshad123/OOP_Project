@@ -11,6 +11,7 @@ Game::Game() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) 
     obstacleSpawnTimer = 0;
     powerUpSpawnTimer = 0;
     colorWallSpawnTimer = 0;  // Initialize color wall timer
+    coinSpawnTimer = 0;  // Initialize coin timer
     currentObstacleSpeed = OBSTACLE_SPEED;
     currentSpawnTime = OBSTACLE_SPAWN_TIME;
     shakeIntensity = 0;
@@ -19,13 +20,13 @@ Game::Game() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) 
     // Load dash sound effect
     if (dashBuffer.loadFromFile("assets/sounds/Dash.wav")) {
         dashSound.setBuffer(dashBuffer);
-        dashSound.setVolume(70);  // 0-100, adjust as needed
+        dashSound.setVolume(70);
     }
 
     // Load color wall pass sound effect
     if (wallPassBuffer.loadFromFile("assets/sounds/Bababooey.wav")) {
         wallPassSound.setBuffer(wallPassBuffer);
-        wallPassSound.setVolume(80);  // 0-100, adjust as needed
+        wallPassSound.setVolume(80);
     }
 
     // Load and play background music
@@ -78,7 +79,7 @@ void Game::processEvents() {
                 }
             }
 
-            // NEW: Change player color when C key is pressed
+            //Change player color when C key is pressed
             if (event.key.code == sf::Keyboard::C && state == GameState::PLAYING) {
                 player.changeColor();
                 particles.emit(player.getPosition(), player.getColor(), 15);
@@ -122,7 +123,18 @@ void Game::update(float dt) {
         spawnColorWall();
         colorWallSpawnTimer = 0;
     }
-    
+
+    // Update coins - spawn them periodically
+    coinSpawnTimer += dt;
+    if (coinSpawnTimer >= COIN_SPAWN_TIME) {
+        spawnCoin();
+        coinSpawnTimer = 0;
+    }
+
+    for (auto& coin : coins) {
+        coin->update(dt);
+    }
+
     // Update particles
     particles.update(dt);
     
@@ -158,6 +170,13 @@ void Game::update(float dt) {
             [](const std::unique_ptr<PowerUp>& pw) { return !pw->active(); }),
         powerUps.end()
     );
+
+    // Remove collected coins
+    coins.erase(
+        std::remove_if(coins.begin(), coins.end(),
+            [](const std::unique_ptr<Coin>& coin) { return !coin->active(); }),
+        coins.end()
+    );
 }
 
 void Game::render() {
@@ -185,7 +204,11 @@ void Game::render() {
         for (const auto& powerUp : powerUps) {
             powerUp->draw(window);
         }
-        
+
+        for (const auto& coin : coins) {
+            coin->draw(window);
+        }
+
         player.draw(window);
         particles.draw(window);
         
@@ -218,11 +241,13 @@ void Game::resetGame() {
     obstacleSpawnTimer = 0;
     powerUpSpawnTimer = 0;
     colorWallSpawnTimer = 0;  // Reset color wall timer
+    coinSpawnTimer = 0;  // Reset coin timer
     currentObstacleSpeed = OBSTACLE_SPEED;
     currentSpawnTime = OBSTACLE_SPAWN_TIME;
 
     obstacles.clear();
     powerUps.clear();
+    coins.clear();
     particles.clear();
 }
 
@@ -259,14 +284,20 @@ void Game::spawnPowerUp() {
 }
 
 void Game::spawnColorWall() {
-    // Spawn a color wall obstacle in the center of the screen
-    // Player must match their color to pass through it
-    // Spawn further off-screen because color wall is wider (OBSTACLE_WIDTH * 3)
-    sf::Vector2f pos(WINDOW_WIDTH + OBSTACLE_WIDTH * 2, WINDOW_HEIGHT / 2.0f);
+    sf::Vector2f pos(WINDOW_WIDTH + OBSTACLE_WIDTH * 4, WINDOW_HEIGHT / 2.0f);
     sf::Color wallColor = getRandomColor();
-
-    // Use ColorWallObstacle which inherits from Obstacle (POLYMORPHISM)
     obstacles.push_back(std::make_unique<ColorWallObstacle>(pos, wallColor, currentObstacleSpeed * 0.7f));
+}
+
+void Game::spawnCoin() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> yDist(50, WINDOW_HEIGHT - 50);
+
+    float y = yDist(gen);
+    sf::Vector2f pos(WINDOW_WIDTH + 30, y);
+
+    coins.push_back(std::make_unique<Coin>(pos, currentObstacleSpeed * 0.6f, COIN_VALUE));
 }
 
 void Game::checkCollisions() {
@@ -275,7 +306,7 @@ void Game::checkCollisions() {
     // Check obstacle collisions
     for (const auto& obstacle : obstacles) {
         if (obstacle->active() && obstacle->getBounds().intersects(playerBounds)) {
-            // NEW: Check if this is a color wall obstacle
+            //updated for Wall Obstacles
             if (obstacle->isColorWall()) {
                 // It's a color wall - check if player color matches
                 if (player.getColor() != obstacle->getColor()) {
@@ -316,6 +347,16 @@ void Game::checkCollisions() {
             score += SCORE_POWERUP;
             particles.emit(powerUp->getPosition(), COLOR_YELLOW, 25);
             powerUp->deactivate();
+        }
+    }
+
+    // Check coin collisions
+    for (auto& coin : coins) {
+        if (coin->active() && coin->getBounds().intersects(playerBounds)) {
+            score += coin->getValue();
+            sf::Vector2f coinPos(coin->getBounds().left, coin->getBounds().top);
+            particles.emit(coinPos, sf::Color::Yellow, 20);
+            coin->deactivate();
         }
     }
 }

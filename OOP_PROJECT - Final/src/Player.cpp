@@ -48,25 +48,14 @@ void Player::handleInput() {
             velocity.x = PLAYER_SPEED;
         }
         
-        // Normalize diagonal movement
-        if (velocity.x != 0 && velocity.y != 0) {
-            float length = sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-            velocity.x = (velocity.x / length) * PLAYER_SPEED;
-            velocity.y = (velocity.y / length) * PLAYER_SPEED;
-        }
+
     }
 }
 
 void Player::dash() {
     if (!canDash()) return;
+    dashDirection = sf::Vector2f(1, 0); // Default right
     
-    // Get dash direction from current velocity or last movement
-    if (velocity.x != 0 || velocity.y != 0) {
-        float length = sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-        dashDirection = sf::Vector2f(velocity.x / length, velocity.y / length);
-    } else {
-        dashDirection = sf::Vector2f(1, 0); // Default right
-    }
     
     isDashing = true;
     dashTimer = DASH_DURATION;

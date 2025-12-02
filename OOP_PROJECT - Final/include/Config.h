@@ -25,8 +25,8 @@ const float OBSTACLE_HEIGHT = 40.0f;
 const float SPEED_INCREASE_RATE = 0.95f;
 
 // Color Wall settings (special obstacles that require color matching)
-const float COLOR_WALL_SPAWN_TIME = 8.0f;  // Spawn a color wall every 8 seconds
-const int SCORE_COLOR_WALL_PASS = 50;      // Bonus points for passing color wall
+const float COLOR_WALL_SPAWN_TIME = 8.0f;  
+const int SCORE_COLOR_WALL_PASS = 50;      
 
 // Colors - Neon theme
 const sf::Color COLOR_RED = sf::Color(255, 0, 100);
@@ -36,6 +36,10 @@ const sf::Color COLOR_GREEN = sf::Color(0, 255, 150);
 const sf::Color COLOR_PURPLE = sf::Color(200, 0, 255);
 const sf::Color COLOR_ORANGE = sf::Color(255, 150, 0);
 const sf::Color COLOR_BACKGROUND = sf::Color(10, 10, 30);
+
+// Coin settings
+const float COIN_SPAWN_TIME = 3.0f;
+const int COIN_VALUE = 25;
 
 // Scoring
 const int SCORE_PER_DODGE = 10;

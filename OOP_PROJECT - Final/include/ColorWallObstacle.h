@@ -4,18 +4,15 @@
 #include "Obstacle.h"
 #include "Config.h"
 
-// ColorWallObstacle inherits from Obstacle (INHERITANCE - OOP Concept)
-// This is a special type of obstacle that requires color matching
 class ColorWallObstacle : public Obstacle {
 private:
-    sf::Color requiredColor;  // Color player must match to pass through
-    bool isTall;              // This obstacle is taller than regular ones
+    sf::Color requiredColor; 
+    bool isTall;            
 
 public:
-    // Constructor
     ColorWallObstacle(sf::Vector2f startPos, sf::Color col, float speed);
+    
 
-    // Override the draw method to make it look different
     void draw(sf::RenderWindow& window) override;
 
     // Getter for required color

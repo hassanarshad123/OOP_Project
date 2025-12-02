@@ -1,7 +1,7 @@
 #include "ParticleSystem.h"
 
 ParticleSystem::ParticleSystem() {
-    rng.seed(100000);
+    rng;
 }
 
 void ParticleSystem::emit(sf::Vector2f position, sf::Color color, int count) {
@@ -10,7 +10,7 @@ void ParticleSystem::emit(sf::Vector2f position, sf::Color color, int count) {
         p.position = position;
         
         // Random direction
-        float angle = random(0, 6.28318f); // 2 * PI
+        float angle = random(0, 6.28318f); 
         float speed = random(50, 200);
         p.velocity.x = cos(angle) * speed;
         p.velocity.y = sin(angle) * speed;

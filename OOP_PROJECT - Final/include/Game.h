@@ -10,6 +10,7 @@
 #include "Obstacle.h"
 #include "ColorWallObstacle.h"  // Include the new color wall class
 #include "PowerUp.h"
+#include "Coin.h"
 #include "ParticleSystem.h"
 #include "UIManager.h"
 
@@ -28,6 +29,7 @@ private:
     Player player;
     std::vector<std::unique_ptr<Obstacle>> obstacles;
     std::vector<std::unique_ptr<PowerUp>> powerUps;
+    std::vector<std::unique_ptr<Coin>> coins;
     ParticleSystem particles;
     UIManager ui;
     
@@ -39,6 +41,7 @@ private:
     float currentSpawnTime;
     float powerUpSpawnTimer;
     float colorWallSpawnTimer;  // Timer for spawning color walls
+    float coinSpawnTimer;  // Timer for spawning coins
     
     // Screen shake
     float shakeIntensity;
@@ -79,6 +82,7 @@ private:
     void spawnObstacle();
     void spawnPowerUp();
     void spawnColorWall();  // Spawn special color wall obstacles
+    void spawnCoin();  // Spawn collectible coins
     void checkCollisions();
     void updateDifficulty();
     void screenShake(float intensity);

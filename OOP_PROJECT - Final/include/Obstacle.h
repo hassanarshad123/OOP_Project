@@ -5,7 +5,7 @@
 #include "Config.h"
 
 class Obstacle {
-protected:  // Changed to protected so child classes can access these
+protected:  
     sf::RectangleShape shape;
     sf::Vector2f position;
     sf::Vector2f velocity;
@@ -18,7 +18,6 @@ public:
     Obstacle(sf::Vector2f startPos, sf::Color col, float speed);
     virtual ~Obstacle() {}  // Virtual destructor for proper inheritance
 
-    // Update
     virtual void update(float dt);  // Virtual so child classes can override
 
     // Getters
